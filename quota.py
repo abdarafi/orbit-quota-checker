@@ -31,18 +31,16 @@ if response.status_code != 200:
     print("invalid email")
     exit(1)
 
-#TODO get auth token
-headers1 = {
+headers = {
     'Host': 'ciam.myorbit.id:10001',
     # 'Content-Length': '2',
     'Sec-Ch-Ua': '"(Not(A:Brand";v="8", "Chromium";v="101"',
-    'Am-Mail': 'REDACTED',
+    'Code': 'REDACTED',
     'Sec-Ch-Ua-Mobile': '?0',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36',
-    'Content-Type': 'application/json;charset=UTF-8',
+    'Content-Type': 'application/x-www-form-urlencoded',
     'Accept': 'application/json, text/plain, */*',
-    'Am-Clientid': 'REDACTED',
-    'Am-Password': 'REDACTED',
+    'Email': 'kalisokolor@yahoo.com',
     'Sec-Ch-Ua-Platform': '"Windows"',
     'Origin': 'https://www.myorbit.id',
     'Sec-Fetch-Site': 'same-site',
@@ -53,16 +51,13 @@ headers1 = {
     'Accept-Language': 'en-US,en;q=0.9',
 }
 
-params1 = {
-    'authIndexType': 'service',
-    'authIndexValue': 'emailLogin',
-}
+data = '{}'
+response = requests.post('https://ciam.myorbit.id:10001/iam/v1/oauth2/realms/tsel/access_token?grant_type=authorization_code&redirect_uri=https://www.myorbit.id/callback&code=REDACTED&client_id=REDACTED&client_secret=REDACTED&code_verifier=REDACTED', headers=headers, data='{}', verify=None)
 
-response = requests.post('https://ciam.myorbit.id:10001/iam/v1/realms/tsel/authenticate', params=params1, headers=headers1, json={}, verify=None)
 if response.status_code != 200:
-    print("invalid email")
-    exit(1)
+    exit("failed to get csrf token")
 
+#TODO get auth token
 headers = {
     'Host': 'api.myorbit.id',
     'X-Localization': 'id',
