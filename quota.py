@@ -1,5 +1,36 @@
 import requests
 
+headers1 = {
+    'Host': 'ciam.myorbit.id:10001',
+    # 'Content-Length': '2',
+    'Sec-Ch-Ua': '"(Not(A:Brand";v="8", "Chromium";v="101"',
+    'Am-Mail': 'REDACTED',
+    'Sec-Ch-Ua-Mobile': '?0',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36',
+    'Content-Type': 'application/json;charset=UTF-8',
+    'Accept': 'application/json, text/plain, */*',
+    'Am-Clientid': 'REDACTED',
+    'Am-Password': 'REDACTED',
+    'Sec-Ch-Ua-Platform': '"Windows"',
+    'Origin': 'https://www.myorbit.id',
+    'Sec-Fetch-Site': 'same-site',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Dest': 'empty',
+    'Referer': 'https://www.myorbit.id/',
+    # 'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'en-US,en;q=0.9',
+}
+
+params1 = {
+    'authIndexType': 'service',
+    'authIndexValue': 'emailLogin',
+}
+
+response = requests.post('https://ciam.myorbit.id:10001/iam/v1/realms/tsel/authenticate', params=params1, headers=headers1, json={}, verify=None)
+if response.status_code != 200:
+    print("invalid email")
+    exit(1)
+
 #TODO get auth token
 headers1 = {
     'Host': 'ciam.myorbit.id:10001',
