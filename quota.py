@@ -82,7 +82,7 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36',
     'Content-Type': 'application/x-www-form-urlencoded',
     'Accept': 'application/json, text/plain, */*',
-    'Email': 'kalisokolor@yahoo.com',
+    'Email': 'REDACTED',
     'Sec-Ch-Ua-Platform': '"Windows"',
     'Origin': 'https://www.myorbit.id',
     'Sec-Fetch-Site': 'same-site',
