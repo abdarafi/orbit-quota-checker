@@ -1,4 +1,6 @@
 import requests
+import generator
+from urllib.parse import urlparse, parse_qs
 
 headers1 = {
     'Host': 'ciam.myorbit.id:10001',
@@ -30,6 +32,46 @@ response = requests.post('https://ciam.myorbit.id:10001/iam/v1/realms/tsel/authe
 if response.status_code != 200:
     print("invalid email")
     exit(1)
+
+tokenId = response.json()['tokenId']
+cookies = {
+    'iPlanetDirectoryPro': tokenId,
+}
+
+headers2 = {
+    'Host': 'ciam.myorbit.id:10001',
+    'Sec-Ch-Ua': '"(Not(A:Brand";v="8", "Chromium";v="101"',
+    'Sec-Ch-Ua-Mobile': '?0',
+    'Sec-Ch-Ua-Platform': '"Windows"',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+    'Sec-Fetch-Site': 'same-site',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Dest': 'document',
+    'Referer': 'https://www.myorbit.id/',
+    # 'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'en-US,en;q=0.9',
+}
+
+code_verifier = generator.code_verifier()
+code_challenge = generator.code_challenge(code_verifier)
+params2 = {
+    'client_id':'REDACTED',
+    'redirect_uri': 'https://www.myorbit.id/callback',
+    'response_type': 'code',
+    'nonce': 'true',
+    'scope': 'profile openid',
+    'csrf': tokenId,
+    'code_challenge': code_challenge,
+    'code_challenge_method': 'S256',
+}
+response = requests.get('https://ciam.myorbit.id:10001/iam/v1/oauth2/realms/tsel/authorize', cookies=cookies, headers=headers2, params=params2, verify=None)
+if response.status_code != 403:
+    exit("cannot get callback code")
+
+callback_location = urlparse(response.url)
+callback_code = parse_qs(callback_location.query)['code'][0]
 
 headers = {
     'Host': 'ciam.myorbit.id:10001',
