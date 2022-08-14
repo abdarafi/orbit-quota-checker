@@ -1,8 +1,15 @@
 import requests
 import generator
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from urllib.parse import urlparse, parse_qs
+
+API_KEY = os.getenv("API_KEY")
+CLIENT_EMAIL = os.getenv("CLIENT_EMAIL")
+CLIENT_PASSWORD = os.getenv("CLIENT_PASSWORD")
+CLIENT_AM_ID = os.getenv("CLIENT_AM_ID")
+CLIENT_AM_SECRET = os.getenv("CLIENT_AM_SECRET")
+MSISDN = os.getenv("MSISDN")
 
 base_header = {
     'Host': 'ciam.myorbit.id:10001',
@@ -22,42 +29,48 @@ base_header = {
 
 
 def get_token_id():
+    header = base_header.copy()
+    header.update({
+        'Am-Mail': CLIENT_EMAIL,
+        'Am-Clientid': CLIENT_AM_ID,
+        'Am-Password': CLIENT_PASSWORD,
+    })
+
     response = requests.post('https://ciam.myorbit.id:10001/iam/v1/realms/tsel/authenticate',
                              params={
                                  'authIndexType': 'service',
                                  'authIndexValue': 'emailLogin',
                              },
-                             headers=base_header.update({
-                                 'Am-Mail': os.getenv("CLIENT_EMAIL"),
-                                 'Am-Clientid': os.getenv("CLIENT_AM_ID"),
-                                 'Am-Password': os.getenv("CLIENT_PASSWORD"),
-                             }),
+                             headers=header,
                              json={},
                              verify=None,
                              )
-
     if response.status_code != 200:
         exit("invalid email")
 
-    return response
+    return response.json()['tokenId']
 
 
 def get_callback_code(code_verifier: str, tokenId: str):
+    header = base_header.copy()
+    header.update({
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Upgrade-Insecure-Requests': '1',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Dest': 'document',
+        'Referer': 'https://www.myorbit.id/',
+    })
+    del header['Content-Type']
+    del header['Origin']
     code_challenge = generator.code_challenge(code_verifier)
     response = requests.get('https://ciam.myorbit.id:10001/iam/v1/oauth2/realms/tsel/authorize',
                             cookies={
                                 'iPlanetDirectoryPro': tokenId,
                             },
-                            headers=base_header.update({
-                                'Sec-Ch-Ua-Platform': '"Windows"',
-                                'Upgrade-Insecure-Requests': '1',
-                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                                'Sec-Fetch-Mode': 'navigate',
-                                'Sec-Fetch-Dest': 'document',
-                                'Referer': 'https://www.myorbit.id/',
-                            }),
+                            headers=header,
                             params={
-                                'client_id': os.getenv("CLIENT_AM_ID"),
+                                'client_id': CLIENT_AM_ID,
                                 'redirect_uri': 'https://www.myorbit.id/callback',
                                 'response_type': 'code',
                                 'nonce': 'true',
@@ -76,18 +89,21 @@ def get_callback_code(code_verifier: str, tokenId: str):
 
 
 def get_access_token(callback_code: str, code_verifier: str):
+    header = base_header.copy()
+    header.update({
+        'Code': callback_code,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Email': CLIENT_EMAIL,
+    })
+
     response = requests.post('https://ciam.myorbit.id:10001/iam/v1/oauth2/realms/tsel/access_token',
-                             headers=base_header.update({
-                                 'Code': callback_code,
-                                 'Content-Type': 'application/x-www-form-urlencoded',
-                                 'Email': os.getenv("CLIENT_EMAIL"),
-                             }),
+                             headers=header,
                              params={
                                  'grant_type': 'authorization_code',
                                  'redirect_uri': 'https://www.myorbit.id/callback',
                                  'code': callback_code,
-                                 'client_id': os.getenv("CLIENT_AM_ID"),
-                                 'client_secret': os.getenv("CLIENT_AM_SECRET"),
+                                 'client_id': CLIENT_AM_ID,
+                                 'client_secret': CLIENT_AM_SECRET,
                                  'code_verifier': code_verifier,
                              },
                              data='{}',
@@ -100,16 +116,17 @@ def get_access_token(callback_code: str, code_verifier: str):
 
 
 def get_remaining_total_quota(access_token: str):
+    header = base_header.copy()
+    header.update({
+        'Authorization': 'Bearer '+access_token,
+        'X-Api-Key': API_KEY,
+    })
+
     response = requests.get('https://api.myorbit.id/subscription/v1/subscriptions/quota',
                             params={
-                                'msisdn': os.getenv("MSISDN"),
+                                'msisdn': MSISDN,
                             },
-                            headers=base_header.update({
-                                {
-                                    'Authorization': 'Bearer '+access_token,
-                                    'X-Api-Key': os.getenv("API_KEY"),
-                                }
-                            }),
+                            headers=header,
                             verify=None,
                             )
     quotas = response.json()["data"]["quota"]["data"]
@@ -142,5 +159,5 @@ def main():
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    load_dotenv(dotenv_path=find_dotenv(), verbose=True)
     main()
