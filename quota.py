@@ -146,7 +146,7 @@ def get_remaining_total_quota(access_token: str):
 def main():
     tokenId = get_token_id()
     code_verifier = generator.code_verifier()
-    callback_code = get_callback_code(tokenId, code_verifier)
+    callback_code = get_callback_code(code_verifier, tokenId)
     access_token = get_access_token(callback_code, code_verifier)
     get_remaining_total_quota(access_token)
 
