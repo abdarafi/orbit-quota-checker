@@ -133,21 +133,14 @@ def get_remaining_total_quota(access_token: str):
     total_quota = 0
     for quota in quotas:
         total_quota += int(quota["quota_value"])
-    '''
-    TODO: add MB
-    t.calculateQuotaValue = function(e) {
-                try {
-                    if (!e)
-                        return "0GB";
-                    var t = e < 1048576
-                    , r = t ? e / 1024 : e / 1048576;
-                    return 0 === r % 1 ? ~~r + " " + (t ? "MB" : "GB") : r.toFixed(1) + " " + (t ? "MB" : "GB")
-                } catch (n) {
-                    return "0GB"
-                }
-            }
-    '''
-    print("Remanining quota: {} GB".format(total_quota/(1 << 20)))
+
+    message = ""
+    if total_quota < 1048576:
+        message = "Remaining quota is less than 1GB!\nRemaining quota: {:.2f} MB".format(total_quota<<10)
+    else:
+        message = "Remanining quota: {:.2f} GB".format(total_quota/(1<<20))
+
+    print(message)
 
 
 def main():
