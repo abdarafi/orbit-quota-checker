@@ -118,6 +118,7 @@ def get_access_token(callback_code: str, code_verifier: str):
 def get_remaining_total_quota(access_token: str):
     header = base_header.copy()
     header.update({
+        'Host': 'api.myorbit.id',
         'Authorization': 'Bearer '+access_token,
         'X-Api-Key': API_KEY,
     })
@@ -129,6 +130,9 @@ def get_remaining_total_quota(access_token: str):
                             headers=header,
                             verify=None,
                             )
+    if response.status_code != 200:
+        exit("cannot get total quota")
+    
     quotas = response.json()["data"]["quota"]["data"]
     total_quota = 0
     for quota in quotas:
