@@ -157,7 +157,6 @@ def main():
     print(message)
     if os.environ.get('SEND_EMAIL_ENABLED') is not None:
         send_email.send(message)
-    
 
 
 if __name__ == "__main__":
