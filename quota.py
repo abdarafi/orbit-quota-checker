@@ -1,6 +1,7 @@
 import requests
 import generator
 import os
+import send_email
 from dotenv import load_dotenv, find_dotenv
 from urllib.parse import urlparse, parse_qs
 
@@ -144,7 +145,7 @@ def get_remaining_total_quota(access_token: str):
     else:
         message = "Remanining quota: {:.2f} GB".format(total_quota/(1<<20))
 
-    print(message)
+    return message
 
 
 def main():
@@ -152,7 +153,12 @@ def main():
     code_verifier = generator.code_verifier()
     callback_code = get_callback_code(code_verifier, tokenId)
     access_token = get_access_token(callback_code, code_verifier)
-    get_remaining_total_quota(access_token)
+    message = get_remaining_total_quota(access_token)
+    if os.environ.get('SEND_EMAIL_ENABLED') is not None:
+        send_email.send(message)
+    
+    print(message)
+    
 
 
 if __name__ == "__main__":
