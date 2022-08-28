@@ -154,10 +154,9 @@ def main():
     callback_code = get_callback_code(code_verifier, tokenId)
     access_token = get_access_token(callback_code, code_verifier)
     message = get_remaining_total_quota(access_token)
+    print(message)
     if os.environ.get('SEND_EMAIL_ENABLED') is not None:
         send_email.send(message)
-    
-    print(message)
     
 
 
