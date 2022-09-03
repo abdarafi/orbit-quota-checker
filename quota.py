@@ -133,7 +133,7 @@ def get_remaining_total_quota(access_token: str):
                             )
     if response.status_code != 200:
         exit("cannot get total quota")
-    
+
     quotas = response.json()["data"]["quota"]["data"]
     total_quota = 0
     for quota in quotas:
@@ -141,9 +141,10 @@ def get_remaining_total_quota(access_token: str):
 
     message = ""
     if total_quota < 1048576:
-        message = "Remaining quota is less than 1GB!\nRemaining quota: {:.2f} MB".format(total_quota<<10)
+        message = "Remaining quota is less than 1GB!\nRemaining quota: {:.2f} MB".format(
+            total_quota << 10)
     else:
-        message = "Remanining quota: {:.2f} GB".format(total_quota/(1<<20))
+        message = "Remanining quota: {:.2f} GB".format(total_quota/(1 << 20))
 
     return message
 
