@@ -1,4 +1,6 @@
-import smtplib, datetime
+import smtplib
+import datetime
+
 
 def send(message: str):
     smtp_user = 'example'
@@ -6,7 +8,8 @@ def send(message: str):
 
     sent_from = "Example <example@example.com>"
     to = ['example_recipient@example.com']
-    subject = '[UPDATES] Daily Internet Quota - {}'.format(datetime.datetime.now().date())
+    subject = '[UPDATES] Daily Internet Quota - {}'.format(
+        datetime.datetime.now().date())
     body = message
 
     email_text = """\
@@ -16,7 +19,7 @@ def send(message: str):
 
     %s
     """ % (sent_from, ", ".join(to), subject, body)
-    
+
     try:
         server = smtplib.SMTP('mail.smtp.com', 2525)
         server.login(smtp_user, smtp_password)
