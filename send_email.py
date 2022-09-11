@@ -1,13 +1,22 @@
 import smtplib
 import datetime
+import os
 
 
 def send(message: str):
-    smtp_user = 'example'
-    smtp_password = 'examplepassword'
 
-    sent_from = "Example <example@example.com>"
-    to = ['example_recipient@example.com']
+    SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+    DEST_EMAIL = os.getenv("DEST_EMAIL")
+    SMTP_USER = os.getenv("SMTP_USER")
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+    SMTP_ADDRESS = os.getenv("SMTP_ADDRESS")
+    SMTP_PORT = int(os.getenv("SMTP_PORT"))
+
+    smtp_user = SMTP_USER
+    smtp_password = SMTP_PASSWORD
+
+    sent_from = SENDER_EMAIL
+    to = [DEST_EMAIL]
     subject = '[UPDATES] Daily Internet Quota - {}'.format(
         datetime.datetime.now().date())
     body = message
@@ -21,7 +30,7 @@ def send(message: str):
     """ % (sent_from, ", ".join(to), subject, body)
 
     try:
-        server = smtplib.SMTP('mail.smtp.com', 2525)
+        server = smtplib.SMTP(SMTP_ADDRESS, SMTP_PORT)
         server.login(smtp_user, smtp_password)
         server.sendmail(sent_from, to, email_text)
         server.close()
