@@ -144,7 +144,7 @@ def get_remaining_total_quota(access_token: str):
         message = "Remaining quota is less than 1GB!\nRemaining quota: {:.2f} MB".format(
             total_quota << 10)
     else:
-        message = "Remanining quota: {:.2f} GB".format(total_quota/(1 << 20))
+        message = "Remaining quota: {:.2f} GB".format(total_quota/(1 << 20))
 
     return message
 
